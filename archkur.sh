@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 # Kullanıcı bilgileri
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
