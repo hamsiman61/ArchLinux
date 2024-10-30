@@ -1,17 +1,23 @@
 #!/bin/bash
 
-#set -e
+set -euo pipefail
 
 # Kullanıcı bilgileri
-read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
-read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
-read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
-read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
+echo -n "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: "
+read -r HOSTNAME
+echo -n "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): "
+read -r LOCALE 
+echo -n "Saat dilimini girin: (Örn., Europe/Istanbul "
+read -r TIMEZONE
+echo -n "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. "
+read -r USER_NAME
 
 # Şifre belirleme
-read -s -p "${USER_NAME} kullanıcısı için parola belirleyiniz.: " USER_PASSWORD
+echo -n "${USER_NAME} kullanıcısı için parola belirleyiniz.: " 
+read -r USER_PASSWORD
 echo
-read -s -p "Parolayı doğrula: " USER_PASSWORD_CONFIRM
+echo -n "Parolayı doğrula: " 
+read  -r USER_PASSWORD_CONFIRM
 echo
 if [ "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM" ]; then
   echo "Parolalar eşleşmiyor!"
@@ -31,8 +37,10 @@ reflector --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
 # Bölümleri biçimlendir
-read -p "Arch Linux'un kurulacağı diski girin (Örn., sda1): " EFIBOLUMU
-read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
+echo -n "Arch Linux'un kurulacağı diski girin (Örn., sda1): " 
+read -r EFIBOLUMU
+echo -n "Arch Linux'un kurulacağı diski girin (Örn., sda2): " 
+read -r BTRFSBOLUMU
 
 mkfs.vfat -F32 /dev/${EFIBOLUMU}1
 mkfs.btrfs /dev/${BTRFSBOLUMU}1
