@@ -1,5 +1,7 @@
 #!/bin/bash
 
+loadkeys trq
+setfont setfont iso09.16  
 set -e
 
 # Kullanıcı bilgileri
@@ -23,22 +25,22 @@ fi
 timedatectl set-ntp true
 
 # En hızlı indirme bağlantılarını seç
-pacman -Sy --noconfirm reflector
-reflector --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+#pacman -Sy --noconfirm reflector
+#reflector --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
 
 
 
 # Bölümleri biçimlendir
-read -p "Arch Linux'un kurulacağı diski girin (Örn., sda1): " EFIBOLUMU
+read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
 read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
 
-mkfs.vfat -F32 /dev/${EFIBOLUMU}1
-mkfs.btrfs /dev/${BTRFSBOLUMU}1
+mkfs.vfat -F32 /dev/${EFIBOLUMU}
+mkfs.btrfs /dev/${BTRFSBOLUMU}
 
 # Btrfs alt birimlerini oluştur
-mount /dev/${BTRFSBOLUMU}1 /mnt
+mount /dev/${BTRFSBOLUMU} /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@var
@@ -46,12 +48,12 @@ btrfs subvolume create /mnt/@snapshots
 umount /mnt
 
 # Bölmeleri monte edin
-mount -o noatime,compress=zstd,subvol=@ /dev/${BTRFSBOLUMU}1 /mnt
+mount -o noatime,compress=zstd,subvol=@ /dev/${BTRFSBOLUMU} /mnt
 mkdir -p /mnt/{boot,home,var,.snapshots}
-mount -o noatime,compress=zstd,subvol=@home /dev/${BTRFSBOLUMU}1 /mnt/home
-mount -o noatime,compress=zstd,subvol=@var /dev/${BTRFSBOLUMU}1 /mnt/var
-mount -o noatime,compress=zstd,subvol=@snapshots /dev/${BTRFSBOLUMU}1 /mnt/.snapshots
-mount /dev/${EFIBOLUMU}1 /mnt/boot
+mount -o noatime,compress=zstd,subvol=@home /dev/${BTRFSBOLUMU} /mnt/home
+mount -o noatime,compress=zstd,subvol=@var /dev/${BTRFSBOLUMU} /mnt/var
+mount -o noatime,compress=zstd,subvol=@snapshots /dev/${BTRFSBOLUMU} /mnt/.snapshots
+mount /dev/${EFIBOLUMU} /mnt/boot
 
 # Temel paketleri yükleyin
 pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs zramswap
