@@ -1,45 +1,148 @@
-#!/usr/bin/env bash
-#-------------------------------------------------------------------------
-#      _          _    __  __      _   _
-#     /_\  _ _ __| |_ |  \/  |__ _| |_(_)__
-#    / _ \| '_/ _| ' \| |\/| / _` |  _| / _|
-#   /_/ \_\_| \__|_||_|_|  |_\__,_|\__|_\__|
-#  Arch Linux Post Install Setup and Config
-#-------------------------------------------------------------------------
+#!/bin/bash
 
-echo "Please enter hostname:"
-read hostname
+set -e
 
-echo "-------------------------------------------------"
-echo "Setting up mirrors for optimal download - US Only"
-echo "-------------------------------------------------"
-pacman -Syyy
-pacman -S --noconfirm pacman-contrib curl
-mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-curl -s "https://archlinux.org/mirrorlist/?country=US&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
+# Kullanıcı bilgileri
+read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
+read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
+read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
+read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
 
-nc=$(grep -c ^processor /proc/cpuinfo)
-echo "You have " $nc" cores."
-echo "-------------------------------------------------"
-echo "Changing the makeflags for "$nc" cores."
-sudo sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j16"/g' /etc/makepkg.conf
-echo "Changing the compression settings for "$nc" cores."
-sudo sed -i 's/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T 16 -z -)/g' /etc/makepkg.conf
+# Şifre belirleme
+read -s -p "${USER_NAME} kullanıcısı için parola belirleyiniz.: " USER_PASSWORD
+echo
+read -s -p "Parolayı doğrula: " USER_PASSWORD_CONFIRM
+echo
+if [ "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM" ]; then
+  echo "Parolalar eşleşmiyor!"
+  exit 1
+fi
 
-echo "-------------------------------------------------"
-echo "Setup Language to US and set locale"
-echo "-------------------------------------------------"
+
+# Sistem saatini güncelle
+timedatectl set-ntp true
+
+# En hızlı indirme bağlantılarını seç
+pacman -Sy --noconfirm reflector
+reflector --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+
+
+
+
+
+# Bölümleri biçimlendir
+read -p "Arch Linux'un kurulacağı diski girin (Örn., sda1): " EFIBOLUMU
+read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
+
+mkfs.vfat -F32 /dev/${EFIBOLUMU}1
+mkfs.btrfs /dev/${BTRFSBOLUMU}1
+
+# Btrfs alt birimlerini oluştur
+mount /dev/${BTRFSBOLUMU}1 /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@var
+btrfs subvolume create /mnt/@snapshots
+umount /mnt
+
+# Bölmeleri monte edin
+mount -o noatime,compress=zstd,subvol=@ /dev/${BTRFSBOLUMU}1 /mnt
+mkdir -p /mnt/{boot,home,var,.snapshots}
+mount -o noatime,compress=zstd,subvol=@home /dev/${BTRFSBOLUMU}1 /mnt/home
+mount -o noatime,compress=zstd,subvol=@var /dev/${BTRFSBOLUMU}1 /mnt/var
+mount -o noatime,compress=zstd,subvol=@snapshots /dev/${BTRFSBOLUMU}1 /mnt/.snapshots
+mount /dev/${EFIBOLUMU}1 /mnt/boot
+
+# Temel paketleri yükleyin
+pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs zramswap
+#pacstrap /mnt base linux linux-lts linux-firmware util-linux sudo btrfs-progs intel-ucode tpm2-tools clevis lvm2 grub grub-efi-x86_64 efibootmgr zramswap
+
+# Generate fstab
+genfstab -U /mnt >> /mnt/etc/fstab
+
+# Change root into the new system
+arch-chroot /mnt /bin/bash <<EOF
+
+# Zaman dilimini ayarlayın
+ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
+hwclock --systohc
+
+# Yerel ayarı ayarlayın
+echo "${LOCALE} UTF-8" >> /etc/locale.gen
 locale-gen
-sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+echo "LANG=${LOCALE}" > /etc/locale.conf
 
-timedatectl --no-ask-password set-timezone America/New_York
-timedatectl --no-ask-password set-ntp 1
+# Ana makine adını ayarla
+echo "${HOSTNAME}" > /etc/hostname
 
-# Set keymaps
-localectl --no-ask-password set-keymap us
+# Hosts dosyasını yapılandırın
+cat <<EOT > /etc/hosts
+   localhost
+::1         localhost
+   ${HOSTNAME}.localdomain ${HOSTNAME}
+EOT
 
-# Hostname
-hostnamectl --no-ask-password set-hostname $hostname
+# Initramfs
+cat <<EOT > /etc/mkinitcpio.conf
+MODULES=(btrfs tpm2)
+BINARIES=()
+FILES=()
+HOOKS=(base udev autodetect modconf block encrypt filesystems)
+EOT
 
-# Add sudo no password rights
-sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+mkinitcpio -P
+
+# Set root password
+echo "root:${USER_PASSWORD}" | chpasswd -e
+
+# Yeni bir kullanıcı oluşturun ve şifreyi ayarlayın
+useradd -m -G wheel -s /bin/bash ${USER_NAME}
+echo "${USER_NAME}:${USER_PASSWORD}" | chpasswd
+
+# Yeni kullanıcıya sudo ayrıcalıkları verin
+echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+
+# Paralel indirmeleri etkinleştir
+sed -Ei 's/^#(ParallelDownloads.+)/\1/' /etc/pacman.conf
+
+# Ek paketleri yükleyin (Kurulmasını istediğiniz)
+pacman -S --noconfirm grub
+# pacman -S --noconfirm grub efibootmgr networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh timeshift rsync acpi acpi_call tlp dnsmasq ipset ufw flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g wget git gcc neovim btop hyprland waybar xdg-desktop-portal xdg-desktop-portal-hyprland kitty polkit-kde-agent qt5-wayland qt6-wayland rofi-wayland firefox vlc obs-studio grim slurp
+
+# Servisleri etkinleştir
+systemctl enable NetworkManager
+systemctl enable bluetooth
+systemctl enable sshd
+systemctl enable avahi-daemon
+systemctl enable tlp
+systemctl enable reflector.timer
+systemctl enable fstrim.timer
+systemctl enable ufw
+systemctl enable acpid
+
+# ZRAM'ı yapılandırın
+cat <<EOT > /etc/systemd/zram-generator.conf
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+EOT
+
+# GRUB'u kurun
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+
+
+# root hesabını kilitle
+# passwd -l root
+
+EOF
+
+# Dosya sistemlerini ayırın
+umount -R /mnt
+
+
+
+# Yeniden başlat
+echo "Kurulum tamamlandı. Yeniden başlatılıyor..."
+sleep 3
+reboot
