@@ -1,23 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#-------------------------------------------------------------------------
+#      _          _    __  __      _   _
+#     /_\  _ _ __| |_ |  \/  |__ _| |_(_)__
+#    / _ \| '_/ _| ' \| |\/| / _` |  _| / _|
+#   /_/ \_\_| \__|_||_|_|  |_\__,_|\__|_\__|
+#  Arch Linux Post Install Setup and Config
+#-------------------------------------------------------------------------
 
-set -euo pipefail
 
 # Kullanıcı bilgileri
-echo -n "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: "
-read -r HOSTNAME
-echo -n "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): "
-read -r LOCALE 
-echo -n "Saat dilimini girin: (Örn., Europe/Istanbul "
-read -r TIMEZONE
-echo -n "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. "
-read -r USER_NAME
+echo "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: "
+read HOSTNAME
+echo "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): "
+read LOCALE 
+echo "Saat dilimini girin: (Örn., Europe/Istanbul "
+read TIMEZONE
+echo "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. "
+read USER_NAME
 
 # Şifre belirleme
-echo -n "${USER_NAME} kullanıcısı için parola belirleyiniz.: " 
-read -r USER_PASSWORD
+echo "${USER_NAME} kullanıcısı için parola belirleyiniz.: " 
+read USER_PASSWORD
 echo
-echo -n "Parolayı doğrula: " 
-read  -r USER_PASSWORD_CONFIRM
+echo "Parolayı doğrula: " 
+read USER_PASSWORD_CONFIRM
 echo
 if [ "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM" ]; then
   echo "Parolalar eşleşmiyor!"
@@ -37,10 +43,10 @@ reflector --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
 # Bölümleri biçimlendir
-echo -n "Arch Linux'un kurulacağı diski girin (Örn., sda1): " 
-read -r EFIBOLUMU
-echo -n "Arch Linux'un kurulacağı diski girin (Örn., sda2): " 
-read -r BTRFSBOLUMU
+echo "Arch Linux'un kurulacağı diski girin (Örn., sda1): " 
+read EFIBOLUMU
+echo "Arch Linux'un kurulacağı diski girin (Örn., sda2): " 
+read BTRFSBOLUMU
 
 mkfs.vfat -F32 /dev/${EFIBOLUMU}1
 mkfs.btrfs /dev/${BTRFSBOLUMU}1
