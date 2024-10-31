@@ -91,7 +91,7 @@ sed -Ei 's/^#(ParallelDownloads.+)/\1/' /etc/pacman.conf
 sed -Ei 's/^#(Color.+)/\1/' /etc/pacman.conf
 
 # Temel paketleri yükleyin
-pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs
+pacstrap /mnt base base-devel linux linux-firmware nano networkmanager grub efibootmgr os-prober sudo bash-completion man intel-ucode amd-ucode
 #pacstrap /mnt base linux linux-lts linux-firmware util-linux sudo btrfs-progs intel-ucode tpm2-tools clevis lvm2 grub grub-efi-x86_64 efibootmgr zramswap
 
 # Generate fstab
@@ -141,7 +141,7 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
 
 # Ek paketleri yükleyin (Kurulmasını istediğiniz)
-pacman -S --noconfirm grub
+# pacman -S --noconfirm grub
 # pacman -S --noconfirm grub efibootmgr networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh timeshift rsync acpi acpi_call tlp dnsmasq ipset ufw flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g wget git gcc neovim btop hyprland waybar xdg-desktop-portal xdg-desktop-portal-hyprland kitty polkit-kde-agent qt5-wayland qt6-wayland rofi-wayland firefox vlc obs-studio grim slurp
 
 # Servisleri etkinleştir
@@ -179,5 +179,5 @@ umount -R /mnt
 
 # Yeniden başlat
 echo "Kurulum tamamlandı. Yeniden başlatılıyor..."
-sleep 3
-reboot
+#sleep 3
+#reboot
