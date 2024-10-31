@@ -8,16 +8,24 @@ set -e
 
 # Kullanıcı bilgileri
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME 
-[  -z "$HOSTNAME" ] && HOSTNAME="HUHU"
 
-echo "--------------------------------"
-echo $HOSTNAME
 
-LOCALE = "tr_TR.UTF-8"
+
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
+[  -z "$LOCALE" ] && LOCALE = "tr_TR.UTF-8"
+echo "---------------------------------------"
+echo $LOCALE
+echo "---------------------------------------"
 
-TIMEZONE = "Europe/Istanbul"
+
 read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
+[  -z "$TIMEZONE" ] && TIMEZONE = "Europe/Istanbul"
+echo "---------------------------------------"
+echo $TIMEZONE
+echo "---------------------------------------"
+
+
+
 
 read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
 
