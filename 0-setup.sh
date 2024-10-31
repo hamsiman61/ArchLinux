@@ -85,6 +85,9 @@ mount -o noatime,compress=zstd,subvol=@var /dev/${BTRFSBOLUMU} /mnt/var
 mount -o noatime,compress=zstd,subvol=@snapshots /dev/${BTRFSBOLUMU} /mnt/.snapshots
 mount /dev/${EFIBOLUMU} /mnt/boot
 
+# Paralel indirmeleri etkinleştir
+sed -Ei 's/^#(ParallelDownloads.+)/\1/' /etc/pacman.conf
+
 # Temel paketleri yükleyin
 pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs
 #pacstrap /mnt base linux linux-lts linux-firmware util-linux sudo btrfs-progs intel-ucode tpm2-tools clevis lvm2 grub grub-efi-x86_64 efibootmgr zramswap
@@ -134,8 +137,6 @@ echo "${USER_NAME}:${USER_PASSWORD}" | chpasswd
 # Yeni kullanıcıya sudo ayrıcalıkları verin
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
-# Paralel indirmeleri etkinleştir
-sed -Ei 's/^#(ParallelDownloads.+)/\1/' /etc/pacman.conf
 
 # Ek paketleri yükleyin (Kurulmasını istediğiniz)
 pacman -S --noconfirm grub
