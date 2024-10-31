@@ -8,8 +8,10 @@ set -e
 
 # Kullanıcı bilgileri
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME 
-
-
+[  -z "$HOSTNAME" ] && HOSTNAME = "huhu"
+echo "---------------------------------------"
+echo $HOSTNAME
+echo "---------------------------------------"
 
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
 [  -z "$LOCALE" ] && LOCALE = "tr_TR.UTF-8"
