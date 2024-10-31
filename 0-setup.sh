@@ -30,6 +30,11 @@ echo "---------------------------------------"
 
 
 read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
+[  -z "$USER_NAME" ] && USER_NAME="hamsiman"
+echo "---------------------------------------"
+echo $USER_NAME
+echo "---------------------------------------"
+
 
 # Şifre belirleme
 read -s -p "${USER_NAME} kullanıcısı için parola belirleyiniz.: " USER_PASSWORD
@@ -56,7 +61,8 @@ timedatectl set-ntp true
 # Bölümleri biçimlendir
 read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
 read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
-
+umount -f /dev/sda1
+umount -f /dev/sda2
 mkfs.vfat -F32 /dev/${EFIBOLUMU}
 mkfs.btrfs -f /dev/${BTRFSBOLUMU}
 
