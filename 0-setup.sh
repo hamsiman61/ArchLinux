@@ -7,7 +7,7 @@ setfont iso09.16
 set -e
 
 # Kullanıcı bilgileri
-read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " [  -z "$HOSTNAME" ] && HOSTNAME="HUHU"
+read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME [  -z "$HOSTNAME" ] && HOSTNAME="HUHU"
 
 echo "--------------------------------"
 echo $HOSTNAME
