@@ -87,6 +87,8 @@ mount /dev/${EFIBOLUMU} /mnt/boot
 
 # Paralel indirmeleri etkinleştir
 sed -Ei 's/^#(ParallelDownloads.+)/\1/' /etc/pacman.conf
+# Renkleri etkinleştir
+sed -Ei 's/^#(Color.+)/\1/' /etc/pacman.conf
 
 # Temel paketleri yükleyin
 pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs
