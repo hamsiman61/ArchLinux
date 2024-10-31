@@ -59,8 +59,8 @@ timedatectl set-ntp true
 
 
 # Bölümleri biçimlendir
-umount -f /dev/sda1
-umount -f /dev/sda2
+#umount -f /dev/sda1
+#umount -f /dev/sda2
 
 read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
 read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
