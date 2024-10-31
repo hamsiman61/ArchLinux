@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+clear
 loadkeys trq
 setfont iso09.16  
 set -e
@@ -8,11 +10,11 @@ set -e
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
 if [ -z "$LOCALE" ]; then
-    LOCALE = "tr_TR.UTF-8"
+    $LOCALE = "tr_TR.UTF-8"
 fi
 read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
 if [ -z "$TIMEZONE" ]; then
-    TIMEZONE = "Europe/Istanbul"
+    $TIMEZONE = "Europe/Istanbul"
 fi
 read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
 
