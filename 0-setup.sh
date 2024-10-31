@@ -7,7 +7,13 @@ set -e
 # Kullanıcı bilgileri
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
+if [ -z "$LOCALE" ]; then
+    LOCALE = "tr_TR.UTF-8"
+fi
 read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
+if [ -z "$TIMEZONE" ]; then
+    TIMEZONE = "Europe/Istanbul"
+fi
 read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
 
 # Şifre belirleme
@@ -34,10 +40,10 @@ timedatectl set-ntp true
 
 # Bölümleri biçimlendir
 read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
-mkfs.vfat -F32 /dev/${EFIBOLUMU}
-
 read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
+
 mkfs.btrfs -f /dev/${BTRFSBOLUMU}
+mkfs.vfat -F32 /dev/${EFIBOLUMU}
 
 # Btrfs alt birimlerini oluştur
 mount /dev/${BTRFSBOLUMU} /mnt
