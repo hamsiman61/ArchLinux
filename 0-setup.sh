@@ -59,10 +59,12 @@ timedatectl set-ntp true
 
 
 # Bölümleri biçimlendir
-read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
-read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
 umount -f /dev/sda1
 umount -f /dev/sda2
+
+read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
+read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
+
 mkfs.vfat -F32 /dev/${EFIBOLUMU}
 mkfs.btrfs -f /dev/${BTRFSBOLUMU}
 
