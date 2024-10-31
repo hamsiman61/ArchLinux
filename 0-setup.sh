@@ -121,7 +121,7 @@ EOT
 
 # Initramfs
 cat <<EOT > /etc/mkinitcpio.conf
-MODULES=(btrfs tpm2)
+MODULES=(btrfs)
 BINARIES=()
 FILES=()
 HOOKS=(base udev autodetect modconf block encrypt filesystems)
