@@ -57,8 +57,9 @@ timedatectl set-ntp true
 read -p "EFI diski girin (Örn., sda1): " EFIBOLUMU
 read -p "Arch Linux'un kurulacağı diski girin (Örn., sda2): " BTRFSBOLUMU
 
-mkfs.btrfs -f /dev/${BTRFSBOLUMU}
 mkfs.vfat -F32 /dev/${EFIBOLUMU}
+mkfs.btrfs -f /dev/${BTRFSBOLUMU}
+
 
 # Btrfs alt birimlerini oluştur
 mount /dev/${BTRFSBOLUMU} /mnt
@@ -77,7 +78,7 @@ mount -o noatime,compress=zstd,subvol=@snapshots /dev/${BTRFSBOLUMU} /mnt/.snaps
 mount /dev/${EFIBOLUMU} /mnt/boot
 
 # Temel paketleri yükleyin
-pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs zramswap
+pacstrap /mnt base base-devel linux-lts linux-firmware btrfs-progs
 #pacstrap /mnt base linux linux-lts linux-firmware util-linux sudo btrfs-progs intel-ucode tpm2-tools clevis lvm2 grub grub-efi-x86_64 efibootmgr zramswap
 
 # Generate fstab
