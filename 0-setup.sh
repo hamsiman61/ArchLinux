@@ -9,7 +9,7 @@ set -e
 # Kullanıcı bilgileri
 HOSTNAME="deneme"
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
-echo HOSTNAME
+echo $HOSTNAME
 
 LOCALE = "tr_TR.UTF-8"
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
