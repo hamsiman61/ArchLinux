@@ -7,15 +7,16 @@ setfont iso09.16
 set -e
 
 # Kullanıcı bilgileri
+HOSTNAME="deneme"
 read -p "Ağda bilgisayarınızın adını benzersiz kılacak bir makine adı belirleyiniz: " HOSTNAME
+echo HOSTNAME
+
+LOCALE = "tr_TR.UTF-8"
 read -p "Dil seçimi yaparak ilerleyiniz: (Örn., tr_TR.UTF-8): " LOCALE
-if [ -z "$LOCALE" ]; then
-    $LOCALE = "tr_TR.UTF-8"
-fi
+
+TIMEZONE = "Europe/Istanbul"
 read -p "Saat dilimini girin: (Örn., Europe/Istanbul " TIMEZONE
-if [ -z "$TIMEZONE" ]; then
-    $TIMEZONE = "Europe/Istanbul"
-fi
+
 read -p "Yeni oluşacak hesap için kullanıcı adı belirleyiniz. " USER_NAME
 
 # Şifre belirleme
