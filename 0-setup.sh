@@ -124,7 +124,7 @@ cat <<EOT > /etc/mkinitcpio.conf
 MODULES=(btrfs)
 BINARIES=()
 FILES=()
-HOOKS=(base udev autodetect modconf block encrypt filesystems)
+HOOKS=(base udev autodetect modconf block filesystems)
 EOT
 
 mkinitcpio -P
